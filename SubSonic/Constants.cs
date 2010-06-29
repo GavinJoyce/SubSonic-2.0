@@ -164,6 +164,7 @@ namespace SubSonic
         public const string STRIP_TABLE_TEXT = "stripTableText";
         public const string STRIP_VIEW_TEXT = "stripViewText";
         public const string TABLE_BASE_CLASS = "tableBaseClass";
+        public const string TABLE_STARTS_WITH = "tableStartsWith";
         public const string TEMPLATE_DIRECTORY = "templateDirectory";
         public const string USE_EXTENDED_PROPERTIES = "useExtendedProperties"; //SQL 2000/2005 Only
         public const string USE_STORED_PROCEDURES = "useSPs";

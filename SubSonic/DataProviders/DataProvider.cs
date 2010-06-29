@@ -114,6 +114,7 @@ namespace SubSonic
         private string stripTableText = String.Empty;
         private string stripViewText = String.Empty;
         private string tableBaseClass = "ActiveRecord";
+        private string tableStartsWith = String.Empty;
         private bool useExtendedProperties;
         private bool useSPs = true;
         private bool useUtc;
@@ -134,6 +135,16 @@ namespace SubSonic
         {
             get { return tableBaseClass; }
             set { tableBaseClass = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a prefix for the table names.
+        /// </summary>
+        /// <value>The table prefix.</value>
+        public string TableStartsWith 
+        {
+            get { return tableStartsWith; }
+            set { tableStartsWith = value; }
         }
 
         /// <summary>
@@ -1574,6 +1585,7 @@ namespace SubSonic
             ApplyConfig(config, ref useUtc, ConfigurationPropertyName.USE_UTC_TIMES);
             ApplyConfig(config, ref viewStartsWith, ConfigurationPropertyName.VIEW_STARTS_WITH);
             ApplyConfig(config, ref tableBaseClass, ConfigurationPropertyName.TABLE_BASE_CLASS);
+            ApplyConfig(config, ref tableStartsWith, ConfigurationPropertyName.TABLE_STARTS_WITH);
             ApplyConfig(config, ref viewBaseClass, ConfigurationPropertyName.VIEW_BASE_CLASS);
             ApplyConfig(config, ref spBaseClass, ConfigurationPropertyName.STORED_PROCEDURE_BASE_CLASS);
         }

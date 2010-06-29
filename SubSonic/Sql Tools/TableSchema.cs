@@ -187,10 +187,12 @@ namespace SubSonic
                     return String.Empty;
 
                 string newName = name;
-                if(tableType == TableType.Table)
+                if(tableType == TableType.Table) {
                     newName = Utility.StripText(newName, provider.StripTableText);
-                else if(tableType == TableType.View)
+                    newName = provider.TableStartsWith + newName;
+                } else if(tableType == TableType.View) {
                     newName = Utility.StripText(newName, provider.StripViewText);
+                }
 
                 newName = Utility.RegexTransform(newName, provider);
                 newName = Utility.GetProperName(newName, provider);
