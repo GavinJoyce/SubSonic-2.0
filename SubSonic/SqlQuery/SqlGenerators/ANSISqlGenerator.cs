@@ -364,21 +364,21 @@ namespace SubSonic
             {
                 expressionIsOpen = false;
                 sb.Append(")");
-            }
-            else
-            {
-                if(columnName.StartsWith("("))
+            } else if (c.Comparison == Comparison.FullTextContains) {
+                sb.Append("CONTAINS(");
+                sb.Append(columnName);
+                sb.Append(", " + c.ParameterName + "");
+                sb.Append(")");
+            } else {
+                if (columnName.StartsWith("("))
                     expressionIsOpen = true;
-                if(c.ConstructionFragment != "##")
-                {
+                if (c.ConstructionFragment != "##") {
                     sb.Append(columnName);
                     sb.Append(Constraint.GetComparisonOperator(c.Comparison));
-                    if(c.Comparison == Comparison.Is || c.Comparison == Comparison.IsNot)
-                    {
-                        if(c.ParameterValue == null || c.ParameterValue == DBNull.Value)
+                    if (c.Comparison == Comparison.Is || c.Comparison == Comparison.IsNot) {
+                        if (c.ParameterValue == null || c.ParameterValue == DBNull.Value)
                             sb.Append("NULL");
-                    }
-                    else
+                    } else
                         sb.Append(c.ParameterName);
                 }
             }

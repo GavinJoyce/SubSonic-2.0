@@ -51,6 +51,7 @@ namespace SubSonic
     [Serializable]
     public enum Comparison
     {
+        YOYO,
         Equals,
         NotEquals,
         Like,
@@ -66,7 +67,8 @@ namespace SubSonic
         NotIn,
         OpenParentheses,
         CloseParentheses,
-        BetweenAnd
+        BetweenAnd,
+        FullTextContains
     }
 
     #endregion

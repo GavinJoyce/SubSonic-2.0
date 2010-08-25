@@ -43,6 +43,8 @@ namespace SubSonic.Tests.SqlQuery
             Assert.AreEqual(" FROM [dbo].[Products]\r\n", from);
         }
 
+
+
         [Test]
         public void Select_Generate_JoinList()
         {

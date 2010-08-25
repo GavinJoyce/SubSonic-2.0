@@ -417,6 +417,20 @@ namespace SubSonic
         }
 
         /// <summary>
+        /// Creates a LIKE statement and appends a wildcard to the end of the passed-in value.
+        /// </summary>
+        /// <param name="val">The val.</param>
+        /// <returns></returns>
+        public SqlQuery FullTextContainsString(string val) {
+            Comparison = Comparison.FullTextContains;
+            ParameterValue = val;
+            DbType = query.GetConstraintDbType(TableName, ColumnName, val);
+            query.Constraints.Add(this);
+
+            return query;
+        }
+
+        /// <summary>
         /// Creates a NOT LIKE statement
         /// </summary>
         /// <param name="val">The val.</param>

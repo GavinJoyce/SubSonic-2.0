@@ -72,6 +72,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\MySql.Data.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.framework, Version=2.4.6.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\MyHome.Common\Dependencies\NUnit\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
@@ -260,6 +264,7 @@
     <Compile Include="Migrations\MigrationFiles\001_MigrationTest.cs" />
     <Compile Include="Migrations\MigrationFiles\002_MigrationTest.cs" />
     <Compile Include="Migrations\MigrationTests.cs" />
+    <Compile Include="SqlGenerators\MyHomeTests.cs" />
     <Compile Include="SqlGenerators\MySqlGeneratorTests.cs" />
     <Compile Include="SqlGenerators\SqlServerGeneratorTests.cs" />
     <Compile Include="SqlQuery\AggregateTests.cs" />
