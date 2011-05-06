@@ -1021,7 +1021,7 @@ namespace SubSonic
 					    {3}
 					INNER JOIN @TempTable t ON {0} = t._keyID
 					WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize)
-                    
+                    ORDER BY IndexID
                     ";
 
         #endregion
