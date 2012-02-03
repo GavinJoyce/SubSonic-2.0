@@ -22,6 +22,7 @@ using System.Transactions;
 using System.Xml;
 using SubSonic.Parser;
 using SubSonic.Utilities;
+using System.Linq;
 
 namespace SubSonic
 {
@@ -1754,7 +1755,26 @@ namespace SubSonic
 
         #endregion
 
+        #region Table Hints
 
+        /// <summary>
+        /// Gets or sets the table hints used in the query
+        /// </summary>
+        private Dictionary<object, List<string>> _tableHints = new Dictionary<object, List<string>>();
+        internal List<string> GetHints(object key) { return _tableHints.ContainsKey(key) ? _tableHints[key] : new List<string>(); }
+
+        public SqlQuery WithTableHint(string hint) {
+           object key = (object)Joins.LastOrDefault() ?? (object)FromTables.Last();
+            List<string> hints;
+            if (!_tableHints.TryGetValue(key, out hints)) {
+                hints = new List<string>();
+                _tableHints[key] = hints;
+            }
+            hints.Add(hint);
+            return this;
+        }
+
+        #endregion
 
         /// <summary>
         /// Gets or sets the select column list.

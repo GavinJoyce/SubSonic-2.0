@@ -19,6 +19,7 @@ using System.Data;
 using System.Text;
 using SubSonic.Sugar;
 using SubSonic.Utilities;
+using System.Linq;
 
 namespace SubSonic
 {
@@ -205,6 +206,7 @@ namespace SubSonic
 
                     sb.Append(joinType);
                     sb.Append(j.FromColumn.Table.QualifiedName);
+                    AddHints(sb, query.GetHints(j));
                     if(j.Type != Join.JoinType.Cross)
                     {
                         sb.Append(" ON ");
@@ -234,10 +236,19 @@ namespace SubSonic
                 if(!isFirst)
                     sb.Append(",");
                 sb.Append(tbl.QualifiedName);
+                AddHints(sb, query.GetHints(tbl));
                 isFirst = false;
             }
             sb.Append(Environment.NewLine);
             return sb.ToString();
+        }
+
+        private static void AddHints(StringBuilder sb, List<string> hints) {
+            if (hints.Any()) {
+                sb.Append(" WITH (");
+                sb.Append(string.Join(",", hints.ToArray()));
+                sb.Append(") ");
+            }
         }
 
         private void BuildConstraintSQL(ref string constraintOperator, StringBuilder sb, bool isFirst, ref bool expressionIsOpen, Constraint c)
