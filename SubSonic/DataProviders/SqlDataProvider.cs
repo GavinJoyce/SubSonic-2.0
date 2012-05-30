@@ -1167,7 +1167,10 @@ ORDER BY OrdinalPosition ASC";
         /// <returns></returns>
         protected override string GetDatabaseVersion(string providerName)
         {
-            QueryCommand cmd = new QueryCommand("/* GetDatabaseVersion */ SELECT @@version", providerName);
+            // http://support.microsoft.com/kb/321185 =>
+            // "If your application requires individual property strings, you can use the SERVERPROPERTY function to return them
+            // instead of parsing the @@VERSION results."
+            QueryCommand cmd = new QueryCommand("/* GetDatabaseVersion */ SELECT SERVERPROPERTY('productversion')", providerName);
             object oResult = DataService.ExecuteScalar(cmd);
             if(oResult != null)
                 return oResult.ToString();
