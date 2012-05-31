@@ -1,13 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using NUnit.Framework;
+using MbUnit.Framework;
 using Northwind;
 using System.Text.RegularExpressions;
 
 namespace SubSonic.Tests.SqlGenerators {
     [TestFixture]
     public class MyHomeTests {
+
+        private static string NormaliseWhitespace(string s) {
+            s = s.Replace("\t", " ").Replace("\r", " ").Replace("\n", " ");
+            while (s.Contains("  ")) {
+                s = s.Replace("  ", " ");
+            }
+            return s;
+        }
+
+        [Test]
+        public void TasksIssue() {
+            var select = Select.AllColumnsFrom<Product>();
+            select.And(Product.Columns.CategoryID).IsEqualTo(55);
+            var referencedProductIDs = new Select(OrderDetail.Columns.ProductID)
+                .From<OrderDetail>()
+                .Where(OrderDetail.Columns.ProductID).IsNotNull();
+            select.And(Product.Columns.ProductID).NotIn(referencedProductIDs);
+            select.Paged(1, 10);
+            var sql = select.BuildSqlStatement();
+            sql = NormaliseWhitespace(sql);
+            Assert.IsTrue(!sql.Contains("FROM [dbo].[Order Details] AND [dbo].[Order Details].[ProductID] IS NOT NULL"), "BUG FOUND");
+        }
 
         [Test]
         public void CanSearchFullTextIndex() {
@@ -40,7 +62,7 @@ namespace SubSonic.Tests.SqlGenerators {
                 .IsEqualTo("apple");
             var gen = new ANSISqlGenerator(select);
             var sql = gen.BuildSelectStatement();
-            Assert.True(sql.Contains("[dbo].[Products] WITH (READPAST)"));
+            Assert.IsTrue(sql.Contains("[dbo].[Products] WITH (READPAST)"));
         }
 
         [Test]
@@ -53,7 +75,7 @@ namespace SubSonic.Tests.SqlGenerators {
             var gen = new ANSISqlGenerator(select);
             var sql = gen.BuildSelectStatement();
             Console.WriteLine(sql);
-            Assert.True(sql.Contains("[dbo].[Products] WITH (READPAST,NOLOCK)"));
+            Assert.IsTrue(sql.Contains("[dbo].[Products] WITH (READPAST,NOLOCK)"));
         }
 
         [Test]
@@ -70,9 +92,9 @@ namespace SubSonic.Tests.SqlGenerators {
             var gen = new ANSISqlGenerator(select);
             var sql = gen.BuildSelectStatement();
             Console.WriteLine(sql);
-            Assert.True(sql.Contains("[dbo].[Products] WITH (READPAST)"));
-            Assert.True(sql.Contains("[dbo].[Categories] WITH (READPAST)"));
-            Assert.True(sql.Contains("[dbo].[Categories] WITH (NOLOCK)"));
+            Assert.IsTrue(sql.Contains("[dbo].[Products] WITH (READPAST)"));
+            Assert.IsTrue(sql.Contains("[dbo].[Categories] WITH (READPAST)"));
+            Assert.IsTrue(sql.Contains("[dbo].[Categories] WITH (NOLOCK)"));
         }
     }
 }

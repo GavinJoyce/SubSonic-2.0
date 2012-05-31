@@ -550,6 +550,16 @@ namespace SubSonic
             return PAGING_SQL;
         }
 
+        private static string ReplaceFirstOccurrence(string s, string oldValue, string newValue) {
+            if (s == null) return null;
+            var i = s.IndexOf(oldValue);
+            if (i != -1) {
+                return s.Remove(i, oldValue.Length).Insert(i, newValue);
+            } else {
+                return s;
+            }
+        }
+
         /// <summary>
         /// Builds the paged select statement.
         /// </summary>
@@ -583,7 +593,8 @@ namespace SubSonic
 
             //have to doctor the wheres, since we're using a WHERE in the paging
             //bits. So change all "WHERE" to "AND"
-            string tweakedWheres = wheres.Replace("WHERE", "AND");
+            // AB: Only change the first occurrence of WHERE so as not to invalidate subqueries.
+            string tweakedWheres = ReplaceFirstOccurrence(wheres, "WHERE", "AND");
             string orderby = GenerateOrderBy();
 
             if(query.Aggregates.Count > 0)
@@ -1010,14 +1021,18 @@ namespace SubSonic
             @"					
 					DECLARE @Page int
 					DECLARE @PageSize int
+                    DECLARE @RowCount int
 
 					SET @Page = {4}
 					SET @PageSize = {5}
+                    SET @RowCount = @Page * @PageSize
 
 					SET NOCOUNT ON
 
 					-- create a temp table to hold order ids
-					DECLARE @TempTable TABLE (IndexId int identity, _keyID {6})
+					DECLARE @TempTable TABLE (IndexId int identity PRIMARY KEY, _keyID {6})
+
+                    SET ROWCOUNT @RowCount
 
 					-- insert the table ids and row numbers into the memory table
 					INSERT INTO @TempTable
@@ -1027,7 +1042,9 @@ namespace SubSonic
 					SELECT 
 						{0}
 					    {1}
-                        {2}
+
+                    SET ROWCOUNT 0
+
 					-- select only those rows belonging to the proper page
 					    {3}
 					INNER JOIN @TempTable t ON {0} = t._keyID
