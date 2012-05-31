@@ -1042,9 +1042,9 @@ namespace SubSonic
 					SELECT 
 						{0}
 					    {1}
+                        {2}
 
-                    SET ROWCOUNT 0
-
+                    SET ROWCOUNT 0                    
 					-- select only those rows belonging to the proper page
 					    {3}
 					INNER JOIN @TempTable t ON {0} = t._keyID
