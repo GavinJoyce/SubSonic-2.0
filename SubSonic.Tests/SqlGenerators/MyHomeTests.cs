@@ -44,17 +44,6 @@ namespace SubSonic.Tests.SqlGenerators {
         }
 
         [Test]
-        public void No_Duplicate_Where_Clause_When_Paging() {
-            var select = Select.AllColumnsFrom<Product>()
-                .Where(Product.Columns.ProductName)
-                .IsEqualTo("apple")
-                .Paged(0, 10);
-            var gen = new ANSISqlGenerator(select);
-            var sql = gen.BuildPagedSelectStatement();
-            Assert.AreEqual(1, Regex.Matches(sql, Regex.Escape("[dbo].[Products].[ProductName] = ")).Count);
-        }
-
-        [Test]
         public void Table_Hints_Single() {
             var select = Select.AllColumnsFrom<Product>()
                 .WithTableHint("READPAST")

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace SubSonic.Geospatial {
+    [Serializable]
     public struct Point : IGeometry {
         public Point(double x, double y)
             : this() {
