@@ -398,6 +398,13 @@ namespace SubSonic
             return query;
         }
 
+        public SqlQuery IntersectsWith(object geometry) {
+            Comparison = Comparison.Intersects;
+            ParameterValue = geometry.ToString();
+            query.Constraints.Add(this);
+            return query;
+        }
+
         /// <summary>
         /// Creates a LIKE statement and appends a wildcard to the end of the passed-in value.
         /// </summary>

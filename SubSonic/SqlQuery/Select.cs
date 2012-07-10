@@ -33,7 +33,7 @@ namespace SubSonic
             ProviderName = provider.Name;
             SelectColumnList = columns;
             SQLCommand = SqlFragment.SELECT;
-        }
+        }       
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Select"/> class.

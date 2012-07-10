@@ -382,6 +382,12 @@ namespace SubSonic
                 sb.Append(")");
             } else if (c.Comparison == Comparison.SqlExpression) {
                 sb.Append(c.sqlExpression);
+            } else if (c.Comparison == Comparison.Intersects) {
+                if (columnName.StartsWith("("))
+                    expressionIsOpen = true;
+                if (c.ConstructionFragment != "##") {
+                    sb.AppendFormat("({0}).STIntersects(geometry::STGeomFromText('{1}', 0)) = 1", columnName, c.ParameterValue);
+                }
             } else {
                 if (columnName.StartsWith("("))
                     expressionIsOpen = true;
