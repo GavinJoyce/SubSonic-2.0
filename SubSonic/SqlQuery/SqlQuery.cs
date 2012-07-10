@@ -165,6 +165,11 @@ namespace SubSonic
             return new Constraint(ConstraintType.Where, columnName, this);
         }
 
+        public SqlQuery WhereSql(string sqlExpression) {
+            new Constraint(this, ConstraintType.Where, sqlExpression);
+            return this;
+        }
+
         /// <summary>
         /// Wheres the specified column.
         /// </summary>
@@ -333,6 +338,38 @@ namespace SubSonic
                                    IsAggregate = true
                                };
             return c;
+        }
+
+        public SqlQuery AndSqlExpression(string sqlExpression) {
+            if (Constraints.Count > 0 && (ClosedParenCount < OpenParenCount)) {
+                Constraint last = Constraints[Constraints.Count - 1];
+                if (last.Comparison != Comparison.CloseParentheses)
+                    CloseExpression();
+            }
+            OpenParenCount++;
+            new Constraint(this, ConstraintType.And, "(" + sqlExpression);
+            return this;
+        }
+
+        public SqlQuery AndSql(string sqlExpression) {
+            new Constraint(this, ConstraintType.And, sqlExpression);
+            return this;
+        }
+
+        public SqlQuery OrSqlExpression(string sqlExpression) {
+            if (Constraints.Count > 0 && (ClosedParenCount < OpenParenCount)) {
+                Constraint last = Constraints[Constraints.Count - 1];
+                if (last.Comparison != Comparison.CloseParentheses)
+                    CloseExpression();
+            }
+            OpenParenCount++;
+            new Constraint(this, ConstraintType.Or, "(" + sqlExpression);
+            return this;
+        }
+
+        public SqlQuery OrSql(string sqlExpression) {
+            new Constraint(this, ConstraintType.Or, sqlExpression);
+            return this;
         }
 
 

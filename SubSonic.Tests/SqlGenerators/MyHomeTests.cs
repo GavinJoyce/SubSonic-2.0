@@ -96,5 +96,58 @@ namespace SubSonic.Tests.SqlGenerators {
             Assert.IsTrue(sql.Contains("[dbo].[Categories] WITH (READPAST)"));
             Assert.IsTrue(sql.Contains("[dbo].[Categories] WITH (NOLOCK)"));
         }
+
+        [Test]
+        public void SqlExpression_WhereConstraint() {
+            var select = Select.AllColumnsFrom<Product>()
+                .InnerJoin<Category>()
+                .WhereSql("1 = 1");
+            var gen = new ANSISqlGenerator(select);
+            var sql = gen.BuildSelectStatement();
+            Console.WriteLine(sql);
+            Assert.IsTrue(sql.Contains("WHERE 1 = 1"));
+        }
+
+        [Test]
+        public void SqlExpression_AndConstraint() {
+            var select = Select.AllColumnsFrom<Product>()
+                .InnerJoin<Category>()
+                .WhereSql("1 = 1")
+                .AndSql("2 = 2");
+            var gen = new ANSISqlGenerator(select);
+            var sql = gen.BuildSelectStatement();
+            Console.WriteLine(sql);
+            Assert.IsTrue(sql.Contains("WHERE 1 = 1"));
+            Assert.IsTrue(sql.Contains("AND 2 = 2"));
+        }
+
+        [Test]
+        public void SqlExpression_OrConstraint() {
+            var select = Select.AllColumnsFrom<Product>()
+                .InnerJoin<Category>()
+                .WhereSql("1 = 1")
+                .OrSql("2 = 2");
+            var gen = new ANSISqlGenerator(select);
+            var sql = gen.BuildSelectStatement();
+            Console.WriteLine(sql);
+            Assert.IsTrue(sql.Contains("WHERE 1 = 1"));
+            Assert.IsTrue(sql.Contains("OR 2 = 2"));
+        }
+
+        [Test]
+        public void SqlExpression_MultiConstraint() {
+            var select = Select.AllColumnsFrom<Product>()
+                .InnerJoin<Category>()
+                .WhereSql("1 = 1")
+                .AndSqlExpression("2 = 2")
+                .OrSql("3 = 3")
+                .CloseExpression();
+            var gen = new ANSISqlGenerator(select);
+            var sql = gen.BuildSelectStatement();
+            Console.WriteLine(sql);
+            Assert.IsTrue(sql.Contains("WHERE 1 = 1"));
+            Assert.IsTrue(sql.Contains("AND (2 = 2"));
+            Assert.IsTrue(System.Text.RegularExpressions.Regex.IsMatch(sql, @"OR\ 3 = 3\s*\)"));
+        }
     }
 }

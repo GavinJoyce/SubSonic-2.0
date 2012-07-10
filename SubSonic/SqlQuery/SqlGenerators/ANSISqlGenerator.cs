@@ -380,6 +380,8 @@ namespace SubSonic
                 sb.Append(columnName);
                 sb.Append(", " + c.ParameterName + "");
                 sb.Append(")");
+            } else if (c.Comparison == Comparison.SqlExpression) {
+                sb.Append(c.sqlExpression);
             } else {
                 if (columnName.StartsWith("("))
                     expressionIsOpen = true;

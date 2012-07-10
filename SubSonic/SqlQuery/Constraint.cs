@@ -47,9 +47,21 @@ namespace SubSonic
         /// The query that this constraint is operating on
         /// </summary>
         public SqlQuery query;
+        public string sqlExpression;
 
 
         #region Factory methods
+
+        public Constraint(SqlQuery query, ConstraintType condition, string sqlExpression) {
+            this.query = query;
+            this.sqlExpression = sqlExpression;
+            Condition = condition;
+            ColumnName = "##";
+            QualifiedColumnName = "##";
+            ConstructionFragment = "##";
+            Comparison = Comparison.SqlExpression;
+            this.query.Constraints.Add(this);
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Constraint"/> class.
