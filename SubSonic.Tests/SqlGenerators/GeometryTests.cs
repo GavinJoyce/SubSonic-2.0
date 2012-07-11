@@ -32,28 +32,27 @@ namespace SubSonic.Tests.SqlGenerators {
             var gen = new ANSISqlGenerator(select);
             var sql = gen.BuildSelectStatement();
             Console.WriteLine(sql);
-            Assert.IsTrue(sql.Contains("([dbo].[Products].[CreatedBy]).STIntersects(geometry::STGeomFromText('POLYGON (("));
-            Assert.IsTrue(sql.Contains("))', 0)) = 1"));
+            Assert.IsTrue(sql.Contains("geography::Parse(@CreatedBy0)) = 1"));
         }
 
         [Test]
         public static void IntersectsWithCast_Test() {
             var select = Select.AllColumnsFrom<Product>()
-                .Where(Geometry.CastAsPoint(Product.Columns.CreatedBy, Product.Columns.CreatedOn)).IntersectsWith(TestPolygon.ToString());
+                .Where(Geospatial.SqlHelper.CastAsPoint(GeospatialType.Geometry, Product.Columns.CreatedBy, Product.Columns.CreatedOn)).IntersectsWith(TestPolygon.ToString(), GeospatialType.Geometry);
             var gen = new ANSISqlGenerator(select);
             var sql = gen.BuildSelectStatement();
             Console.WriteLine(sql);
-            Assert.IsTrue(sql.Contains("(geometry::STGeomFromText('POINT (' + CONVERT(varchar, [CreatedBy]) + ' ' + CONVERT(varchar, [CreatedOn]) + ')', 0)).STIntersects(geometry::STGeomFromText('" + TestPolygon.ToString() + "', 0)) = 1"));
+            Assert.IsTrue(sql.Contains("(geometry::Parse('POINT (' + CONVERT(varchar, [CreatedBy]) + ' ' + CONVERT(varchar, [CreatedOn]) + ')')).STIntersects(geometry::Parse(@Parameter00)) = 1"));
         }
 
         [Test]
         public static void IntersectsWithCast_CountTest() {
             var select = Select.AllColumnsFrom<Product>()
-                .Where(Geometry.CastAsPoint(Product.Columns.CreatedBy, Product.Columns.CreatedOn)).IntersectsWith(TestPolygon.ToString());
+                .Where(Geospatial.SqlHelper.CastAsPoint(GeospatialType.Geometry, Product.Columns.CreatedBy, Product.Columns.CreatedOn)).IntersectsWith(TestPolygon.ToString(), GeospatialType.Geometry);
             var gen = new ANSISqlGenerator(select);
             var sql = gen.GetCountSelect();
             Console.WriteLine(sql);
-            Assert.IsTrue(sql.Contains("(geometry::STGeomFromText('POINT (' + CONVERT(varchar, [CreatedBy]) + ' ' + CONVERT(varchar, [CreatedOn]) + ')', 0)).STIntersects(geometry::STGeomFromText('" + TestPolygon.ToString() + "', 0)) = 1"));
+            Assert.IsTrue(sql.Contains("(geometry::Parse('POINT (' + CONVERT(varchar, [CreatedBy]) + ' ' + CONVERT(varchar, [CreatedOn]) + ')')).STIntersects(geometry::Parse(@Parameter00)) = 1"));
         }
     }
 }

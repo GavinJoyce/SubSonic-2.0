@@ -396,7 +396,7 @@ namespace SubSonic
                 if (columnName.StartsWith("("))
                     expressionIsOpen = true;
                 if (c.ConstructionFragment != "##") {
-                    sb.AppendFormat("({0}).STIntersects(geometry::STGeomFromText('{1}', 0)) = 1", columnName, c.ParameterValue);
+                    sb.AppendFormat("({0}).STIntersects({1}::Parse({2})) = 1", columnName, c.SqlType, c.ParameterName);
                 }
             } else {
                 if (columnName.StartsWith("("))

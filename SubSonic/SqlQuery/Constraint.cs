@@ -271,6 +271,7 @@ namespace SubSonic
         /// </summary>
         /// <value>The type of the db.</value>
         public DbType DbType { get; set; }
+        public string SqlType { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this constraint is an Aggregate.
@@ -398,9 +399,10 @@ namespace SubSonic
             return query;
         }
 
-        public SqlQuery IntersectsWith(object geometry) {
+        public SqlQuery IntersectsWith(string wkt, Geospatial.GeospatialType type = Geospatial.GeospatialType.Geography) {
             Comparison = Comparison.Intersects;
-            ParameterValue = geometry.ToString();
+            ParameterValue = wkt;
+            SqlType = Geospatial.SqlHelper.GetSqlType(type);
             query.Constraints.Add(this);
             return query;
         }
