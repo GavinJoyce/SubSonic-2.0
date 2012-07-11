@@ -396,7 +396,12 @@ namespace SubSonic
                 if (columnName.StartsWith("("))
                     expressionIsOpen = true;
                 if (c.ConstructionFragment != "##") {
-                    sb.AppendFormat("({0}).STIntersects({1}::Parse({2})) = 1", columnName, c.SqlType, c.ParameterName);
+                    // we parse the WKB as a geometry first (more forgiving).  Some geometrys are not valid geographys, so to make it valid,
+                    // we union the geometry with it's start point convert it back to WKB and parse this as a geography type.
+                    sb.AppendFormat("({0}).STIntersects({1}::Parse(geometry::Parse({2}).STUnion(geometry::Parse({2}).STStartPoint()).ToString()).ToString()) = 1",
+                        columnName,
+                        c.SqlType,
+                        c.ParameterName);
                 }
             } else {
                 if (columnName.StartsWith("("))

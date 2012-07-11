@@ -168,7 +168,7 @@
     <Compile Include="DataProviders\MySqlDataProvider.cs" />
     <Compile Include="DataProviders\SqlDataProvider.cs" />
     <Compile Include="Enums.cs" />
-    <Compile Include="Geospatial\Geospatial.cs" />
+    <Compile Include="Geospatial\SqlHelper.cs" />
     <Compile Include="Geospatial\GeospatialType.cs" />
     <Compile Include="Geospatial\IGeometry.cs" />
     <Compile Include="Geospatial\Point.cs" />
