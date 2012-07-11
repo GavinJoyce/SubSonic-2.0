@@ -87,6 +87,47 @@ namespace SubSonic.Tests.SqlGenerators {
         }
 
         [Test]
+        public void Table_Hints_SimpleJoin_Paged() {
+
+            var select = Select.AllColumnsFrom<Product>()
+                .WithTableHint("READPAST")
+                .InnerJoin<Category>()
+                .WithTableHint("READPAST")
+                .InnerJoin<Category>()
+                .WithTableHint("NOLOCK")
+                .Where(Product.Columns.ProductName)
+                .IsEqualTo("apple")
+                .Paged(1, 10);
+            var gen = new ANSISqlGenerator(select);
+            var sql = gen.BuildSelectStatement();
+            Console.WriteLine(sql);
+            Assert.IsTrue(sql.Contains("[dbo].[Products] WITH (READPAST)"));
+            Assert.IsTrue(sql.Contains("[dbo].[Categories] WITH (READPAST)"));
+            Assert.IsTrue(sql.Contains("[dbo].[Categories] WITH (NOLOCK)"));
+        }
+
+        [Test]
+        public void Table_IndexHints_SimpleJoin_Paged_NoIndexHintsOn2ndQuery() {
+
+            var select = Select.AllColumnsFrom<Product>()
+                .WithTableHint("INDEX (MyIndex)")
+                .InnerJoin<Category>()
+                .WithTableHint("READPAST")
+                .InnerJoin<Category>()
+                .WithTableHint("NOLOCK")
+                .Where(Product.Columns.ProductName)
+                .IsEqualTo("apple")
+                .Paged(1, 10);
+            var gen = new ANSISqlGenerator(select);
+            var sql = gen.BuildSelectStatement();
+            Console.WriteLine(sql);
+            Assert.AreEqual(1, Regex.Matches(sql, Regex.Escape(@"INDEX (MyIndex)")).Count);
+            Assert.IsTrue(sql.Contains("[dbo].[Products] WITH (INDEX (MyIndex))"));
+            Assert.IsTrue(sql.Contains("[dbo].[Categories] WITH (READPAST)"));
+            Assert.IsTrue(sql.Contains("[dbo].[Categories] WITH (NOLOCK)"));
+        }
+
+        [Test]
         public void SqlExpression_WhereConstraint() {
             var select = Select.AllColumnsFrom<Product>()
                 .InnerJoin<Category>()

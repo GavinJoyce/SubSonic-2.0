@@ -225,7 +225,7 @@ namespace SubSonic
         /// Generates from list.
         /// </summary>
         /// <returns></returns>
-        public virtual string GenerateFromList()
+        public virtual string GenerateFromList(bool includeIndexHints = true)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(SqlFragment.FROM);
@@ -236,14 +236,20 @@ namespace SubSonic
                 if(!isFirst)
                     sb.Append(",");
                 sb.Append(tbl.QualifiedName);
-                AddHints(sb, query.GetHints(tbl));
+                AddHints(sb, query.GetHints(tbl), includeIndexHints);
                 isFirst = false;
             }
             sb.Append(Environment.NewLine);
             return sb.ToString();
         }
 
-        private static void AddHints(StringBuilder sb, List<string> hints) {
+        private static bool IsIndexHint(string hint) {
+            hint = hint.ToLower();
+            return hint.StartsWith("index");
+        }
+
+        private static void AddHints(StringBuilder sb, IEnumerable<string> hints, bool includeIndexHints = true) {
+            hints = hints.Where(hint => includeIndexHints || !IsIndexHint(hint));
             if (hints.Any()) {
                 sb.Append(" WITH (");
                 sb.Append(string.Join(",", hints.ToArray()));
@@ -291,7 +297,11 @@ namespace SubSonic
 
                 else if(c.IsAggregate || (c.ConstructionFragment.Contains("(") && c.ConstructionFragment.Contains(")")))
                 {
-                    rawColumnName = c.ConstructionFragment.Replace("(", String.Empty).Replace(")", String.Empty);
+                    if (c.ConstructionFragment.IndexOfAny(new char[] { '[', '+', ',', '\'' }) != -1) {
+                        rawColumnName = "Parameter" + query.Constraints.IndexOf(c);
+                    } else {
+                        rawColumnName = c.ConstructionFragment.Replace("(", String.Empty).Replace(")", String.Empty);
+                    }
                     isAggregate = true;
                 }
 
@@ -594,7 +604,8 @@ namespace SubSonic
 
             string select = GenerateCommandLine();
             //string columnList = select.Replace("SELECT", "");
-            string fromLine = GenerateFromList();
+            string fromLineWithIndexHints = GenerateFromList(true);
+            string fromLineWithoutIndexHints = GenerateFromList(false);
             string joins = GenerateJoins();
             string wheres = GenerateWhere();
             string havings = string.Empty;
@@ -621,8 +632,8 @@ namespace SubSonic
             //6 - page size
             //7 - PK Type (using Utility.GetSqlDBType)
 
-            string sql = string.Format(PAGING_SQL, idColumn, String.Concat(fromLine, joins, wheres), String.Concat(tweakedWheres, orderby, havings),
-                String.Concat(select, fromLine, joins), query.CurrentPage, query.PageSize, sqlType);
+            string sql = string.Format(PAGING_SQL, idColumn, String.Concat(fromLineWithIndexHints, joins, wheres), String.Concat(orderby, havings),
+                String.Concat(select, fromLineWithoutIndexHints, joins), query.CurrentPage, query.PageSize, sqlType);
 
             return sql;
         }

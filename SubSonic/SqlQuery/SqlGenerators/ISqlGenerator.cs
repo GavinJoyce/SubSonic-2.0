@@ -37,7 +37,7 @@ namespace SubSonic
         /// Generates from list.
         /// </summary>
         /// <returns></returns>
-        string GenerateFromList();
+        string GenerateFromList(bool includeIndexHints = true);
 
         /// <summary>
         /// Generates the order by.

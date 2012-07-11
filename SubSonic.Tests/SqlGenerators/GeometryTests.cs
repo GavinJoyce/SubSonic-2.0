@@ -45,5 +45,15 @@ namespace SubSonic.Tests.SqlGenerators {
             Console.WriteLine(sql);
             Assert.IsTrue(sql.Contains("(geometry::STGeomFromText('POINT (' + CONVERT(varchar, [CreatedBy]) + ' ' + CONVERT(varchar, [CreatedOn]) + ')', 0)).STIntersects(geometry::STGeomFromText('" + TestPolygon.ToString() + "', 0)) = 1"));
         }
+
+        [Test]
+        public static void IntersectsWithCast_CountTest() {
+            var select = Select.AllColumnsFrom<Product>()
+                .Where(Geometry.CastAsPoint(Product.Columns.CreatedBy, Product.Columns.CreatedOn)).IntersectsWith(TestPolygon.ToString());
+            var gen = new ANSISqlGenerator(select);
+            var sql = gen.GetCountSelect();
+            Console.WriteLine(sql);
+            Assert.IsTrue(sql.Contains("(geometry::STGeomFromText('POINT (' + CONVERT(varchar, [CreatedBy]) + ' ' + CONVERT(varchar, [CreatedOn]) + ')', 0)).STIntersects(geometry::STGeomFromText('" + TestPolygon.ToString() + "', 0)) = 1"));
+        }
     }
 }
