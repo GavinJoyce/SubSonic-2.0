@@ -398,7 +398,7 @@ namespace SubSonic
                 if (c.ConstructionFragment != "##") {
                     // we parse the WKB as a geometry first (more forgiving).  Some geometrys are not valid geographys, so to make it valid,
                     // we union the geometry with it's start point convert it back to WKB and parse this as a geography type.
-                    sb.AppendFormat("({0}).STIntersects({1}::Parse(geometry::Parse({2}).STUnion(geometry::Parse({2}).STStartPoint()).ToString()).ToString()) = 1",
+                    sb.AppendFormat("({0}).STIntersects({1}::Parse(geometry::Parse({2}).MakeValid().STUnion(geometry::Parse({2}).MakeValid().STStartPoint()).ToString()).ToString()) = 1",
                         columnName,
                         c.SqlType,
                         c.ParameterName);
