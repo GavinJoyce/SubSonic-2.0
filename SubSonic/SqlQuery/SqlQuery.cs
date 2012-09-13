@@ -411,7 +411,78 @@ namespace SubSonic
 
         #region Exception Handling
 
-        internal static SqlQueryException GenerateException(Exception fromException)
+        private static string CommandToString(QueryCommand cmd) {
+            var sb = new StringBuilder();
+            sb.AppendLine();
+            // AB - some parameter names begin with ## (dummy ones?)
+            foreach (var parm in cmd.Parameters.Where(p => p.ParameterName.StartsWith("@"))) {
+                var type = DataTypeToString(parm.DataType);
+                var value = type.Contains("varchar") ?
+                    "'" + (Convert.ToString(parm.ParameterValue).Replace("'", "''") + "'") :
+                    Convert.ToString(parm.ParameterValue);
+                sb.AppendFormat("DECLARE {0} {1}; SET {0} = {2};\r\n",
+                    parm.ParameterName,
+                    type,
+                    value);
+            }
+            sb.AppendLine();
+            sb.Append(cmd.CommandSql);
+            return sb.ToString();
+        }
+
+        private static string DataTypeToString(DbType type) {
+            switch (type) {
+                case DbType.AnsiString:
+                case DbType.AnsiStringFixedLength:
+                    return "nvarchar(max)";
+                case DbType.String:
+                case DbType.StringFixedLength:
+                    return "varchar(max)";
+                case DbType.Binary:
+                    return "varbinary(max)";
+                case DbType.Boolean:
+                    return "bit";
+                case DbType.SByte:
+                case DbType.Byte:
+                    return "tinyint";
+                case DbType.Currency:
+                    return "money";
+                case DbType.Date:
+                case DbType.DateTime:
+                case DbType.DateTime2:
+                case DbType.DateTimeOffset:
+                    return "datetime";
+                case DbType.Decimal:
+                    return "decimal";
+                case DbType.Double:
+                    return "double";
+                case DbType.Guid:
+                    return "uniqueidentifier";
+                case DbType.Int16:
+                case DbType.UInt16:
+                    return "smallint";
+                case DbType.Int32:
+                case DbType.UInt32:
+                    return "int";
+                case DbType.Int64:
+                case DbType.UInt64:
+                    return "bigint";
+                case DbType.Object:
+                    return "sql_variant";
+                case DbType.Single:
+                    return "float";
+                case DbType.Time:
+                    return "datetime";
+                case DbType.VarNumeric:
+                    return "numeric";
+                case DbType.Xml:
+                    return "xml";
+                default:
+                    return "sql_variant";
+            }
+        }
+
+        internal SqlQueryException GenerateException(Exception fromException)
         {
             string message = fromException.Message;
 
@@ -423,7 +494,15 @@ namespace SubSonic
                     "The joins on your query are not ordered properly - make sure you're not repeating a table in the first (or 'from') position on a join that's also specified in FROM. Also - a JOIN can't have two of the same table in the 'from' first position. Check the SQL output to see how to order this properly";
             }
 
-            return new SqlQueryException(message, fromException);
+            var newException = new SqlQueryException(message, fromException);
+            if (fromException.GetBaseException() is System.Data.SqlClient.SqlException) {
+                try {
+                    var cmd = this.BuildCommand();
+                    newException.Data["Query"] = CommandToString(cmd);
+                } catch { }
+            }
+
+            return newException;
         }
 
         #endregion
