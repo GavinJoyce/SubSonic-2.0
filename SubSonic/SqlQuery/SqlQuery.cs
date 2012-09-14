@@ -417,8 +417,8 @@ namespace SubSonic
             // AB - some parameter names begin with ## (dummy ones?)
             foreach (var parm in cmd.Parameters.Where(p => p.ParameterName.StartsWith("@"))) {
                 var type = DataTypeToString(parm.DataType);
-                var value = type.Contains("varchar") ?
-                    "'" + (Convert.ToString(parm.ParameterValue).Replace("'", "''") + "'") :
+                var value = parm.DataType == DbType.Boolean ? (Convert.ToBoolean(parm.ParameterValue) ? "1" : "0") :
+                    type.Contains("varchar") ? ("'" + (Convert.ToString(parm.ParameterValue).Replace("'", "''") + "'")) :
                     Convert.ToString(parm.ParameterValue);
                 sb.AppendFormat("DECLARE {0} {1}; SET {0} = {2};\r\n",
                     parm.ParameterName,
@@ -455,7 +455,7 @@ namespace SubSonic
                 case DbType.Decimal:
                     return "decimal";
                 case DbType.Double:
-                    return "double";
+                    return "float";
                 case DbType.Guid:
                     return "uniqueidentifier";
                 case DbType.Int16:
@@ -470,7 +470,7 @@ namespace SubSonic
                 case DbType.Object:
                     return "sql_variant";
                 case DbType.Single:
-                    return "float";
+                    return "real";
                 case DbType.Time:
                     return "datetime";
                 case DbType.VarNumeric:
@@ -482,7 +482,7 @@ namespace SubSonic
             }
         }
 
-        internal SqlQueryException GenerateException(Exception fromException)
+        internal SqlQueryException GenerateException(Exception fromException, QueryCommand command = null)
         {
             string message = fromException.Message;
 
@@ -497,8 +497,10 @@ namespace SubSonic
             var newException = new SqlQueryException(message, fromException);
             if (fromException.GetBaseException() is System.Data.SqlClient.SqlException) {
                 try {
-                    var cmd = this.BuildCommand();
-                    newException.Data["Query"] = CommandToString(cmd);
+                    if (command == null) {
+                        command = this.BuildCommand();
+                    }
+                    newException.Data["Query"] = CommandToString(command);
                 } catch { }
             }
 
@@ -1385,6 +1387,7 @@ namespace SubSonic
         public virtual int GetRecordCount()
         {
             int count = 0;
+            QueryCommand command = null;
             try
             {
                 if (PageSize > 0 )
@@ -1398,7 +1401,7 @@ namespace SubSonic
                 }
                 else
                 {
-                    QueryCommand command = new QueryCommand(GetGenerator().GetCountSelect(), provider.Name);
+                    command = new QueryCommand(GetGenerator().GetCountSelect(), provider.Name);
                     SetConstraintParams(this, command);
                     object scalar = DataService.ExecuteScalar(command);
                     if (scalar != null)
@@ -1407,7 +1410,7 @@ namespace SubSonic
             }
             catch (Exception x)
             {
-                SqlQueryException ex = GenerateException(x);
+                SqlQueryException ex = GenerateException(x, command);
                 throw ex;
             }
 
