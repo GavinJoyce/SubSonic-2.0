@@ -209,6 +209,7 @@ namespace SubSonic
 
         #endregion
 
+        public bool CreateAuditMessages { get; set; }
 
         #region DB Properties/Methods
 
@@ -342,29 +343,33 @@ namespace SubSonic
                     areEqualOrBothNull = true;
                 else
                 {
-                    if(oldValue != null)
-                    {
-                        oldValueMsg = oldValue.ToString();
+                    if (oldValue != null) {
                         areEqualOrBothNull = oldValue.Equals(oValue);
                     }
-
-                    if(oValue != null)
-                        newValueMsg = oValue.ToString();
                 }
 
                 TableSchema.TableColumn dirtyCol = schema.GetColumn(columnName);
 
                 if(dirtyCol != null && !areEqualOrBothNull)
                 {
-                    string auditMessage = String.Format("Value changed from {0} to {1}{2}", oldValueMsg, newValueMsg, Environment.NewLine);
+                    string auditMessage = null;
                     TableSchema.TableColumn dirtyEntry = DirtyColumns.GetColumn(columnName);
-                    if(dirtyEntry != null)
-                    {
+                    if (dirtyEntry != null) {
                         DirtyColumns.Remove(dirtyEntry);
-                        auditMessage = String.Concat(dirtyCol.AuditMessage, auditMessage);
+                        auditMessage = dirtyEntry.AuditMessage;
                     }
 
-                    dirtyCol.AuditMessage = auditMessage;
+                    if (this.CreateAuditMessages) {
+                        if (oldValue != null) {
+                            oldValueMsg = oldValue.ToString();
+                        }
+                        if (oValue != null) {
+                            newValueMsg = oValue.ToString();
+                        }
+
+                        auditMessage += String.Format("Value changed from {0} to {1}{2}", oldValueMsg, newValueMsg, Environment.NewLine);
+                        dirtyCol.AuditMessage = auditMessage;
+                    }
                     DirtyColumns.Add(dirtyCol);
                 }
             }
