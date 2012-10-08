@@ -53,7 +53,7 @@ namespace SubSonic
             /// <summary>
             /// SQL-qualified name of this table - e.g. "[dbo].[Products]"
             /// </summary>
-            public string QualifiedName
+            public virtual string QualifiedName
             {
                 get { return Utility.QualifyTableName(SchemaName, Name, Provider); }
             }
@@ -1129,7 +1129,7 @@ namespace SubSonic
             /// Gets the name of column in fully qualified format, based on the provider.
             /// </summary>
             /// <value>The fully qualified name of the column.</value>
-            public string QualifiedName
+            public virtual string QualifiedName
             {
                 get
                 {

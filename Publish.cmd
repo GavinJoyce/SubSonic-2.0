@@ -1,5 +1,5 @@
 @echo off
-set "ReleasePath=C:\dev\3rd Party\SubSonic-2.0\SubCommander\bin\Release"
+set "ReleasePath=C:\dev\3rdParty\SubSonic-2.0\SubCommander\bin\Release"
 set "Destination1Path=C:\dev\MyHome.Common\Dependencies\SubSonic2.2"
 set "Destination2Path=C:\dev\MyHomeV3\Dependencies\SubSonic2.2"
 
